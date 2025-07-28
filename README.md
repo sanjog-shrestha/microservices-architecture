@@ -4,24 +4,26 @@
 
 This project demonstrates a basic **microservices architecture** using Docker Compose, designed for local development on Windows. It includes:
 
-- 🛡️ An **Authentication Service** (Node.js + MongoDB – handles user registration and login)
-- ⚙️ A **Core API Service** (Node.js – handles business logic)
-- 🌐 A **Frontend UI** (Nginx + static HTML)
-- 🔀 An **NGINX Reverse Proxy** for routing and service discovery
-- 🍃 A **MongoDB Container** for persistent user data storage
-- 🧪 A **Mongo Express GUI** for inspecting MongoDB documents and collections
-
+- 🛡️ An Authentication Service (Node.js + MongoDB – handles user registration and login, with /health endpoint for Docker monitoring)
+- ⚙️ A Core API Service (Node.js – handles business logic, includes /health endpoint for healthchecks)
+- 🌐 A Frontend UI (Nginx + static HTML – served via reverse proxy)
+- 🔀 An NGINX Reverse Proxy for routing and service discovery (/, /auth, /api)
+- 🍃 A MongoDB Container for persistent user data storage
+- 🧪 A Mongo Express GUI for inspecting MongoDB documents and collections
+- 💓 Integrated Healthcheck Endpoints (/health) for auth and api services to support Docker’s service monitoring and readiness probes
 ---
 
 ## 🖼️ Screenshots
-| Screenshot                                                    | Description                                     |
-| --------------------------------------------------------------| ----------------------------------------------- |
+| Screenshot                                                    | Description                                      |
+| --------------------------------------------------------------| -------------------------------------------------|
 | [Frontend](screenshots/frontend-ui.png)                       | 🌐 **Frontend UI** – Served by NGINX            |
 | [Register/Login](screenshots/auth-response.png)               | 🔐 **Auth Service** – Register + Login with JWT |
 | [Mongo GUI](screenshots/mongo-express.png)                    | 📊 **Mongo Express** – Document view of users   |
 | [Public API](screenshots/Api/public_endpoint.png)             | 📟 **Public API Response** – `/api/public` OK   |
-| [Protected Fail](screenshots/Api/protected_endpoint.png)      | ❌ **Protected API Without Token** – Rejected    |
-| [Protected Success](screenshots/Api/protected_successful.png) | ✅ **Protected API With JWT** – Access granted   |
+| [Protected Fail](screenshots/Api/protected_endpoint.png)      | ❌ **Protected API Without Token** – Rejected   |
+| [Protected Success](screenshots/Api/protected_successful.png) | ✅ **Protected API With JWT** – Access granted  |
+| [Healthcheck](screenshots/healthcheck.png)                    | 💓 Docker healthcheck route `/health`           |
+
 
 ---
 
@@ -104,6 +106,14 @@ Protected route – requires JWT in header
 - 🔒 Users persist even after container restarts
 
 ---
+💓 Healthcheck Routes (Docker monitoring)
+
+- GET /health
+  Available in both auth and api services
+  Returns 200 OK if service is healthy.
+Used internally by Docker for service monitoring.
+--- 
+
 🧪 Sample Registration & Login (PowerShell)
 
     #Register
@@ -150,19 +160,23 @@ docker-compose up --build
 ```
 microservices-architecture/
 ├── docker-compose.yml
+├── .env
 ├── nginx/
 │   └── default.conf
 ├── auth-service/
 │   ├── Dockerfile
+│   ├── package.json
 │   ├── index.js
-│   └── models/User.js           
+│   └── models/User.js
 ├── api-service/
 │   ├── Dockerfile
+│   ├── package.json
 │   └── index.js
 ├── frontend/
 │   ├── Dockerfile
-│   └── index.html      
+│   └── index.html
 └── README.md
+
 
 ```
 
