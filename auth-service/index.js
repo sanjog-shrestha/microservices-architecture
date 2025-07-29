@@ -12,15 +12,26 @@ const PORT = 4000;
 //Middleware
 app.use(express.json());
 
-//Connect to MongoDB
-mongoose.connect(process.env.MONGO_URI,{
-  useNewUrlParser: true,
-  useUnifiedTopology: true,
-}).then(() => {
-  console.log('🔗 Connected to MongoDB');
-}).catch*((err) => {
-  console.log('❌ MongoDB connection error:', err);
-});
+// MongoDB Retry Logic
+async function connectWithRetry(retries=5, delay=3000) {
+  for (let i = 1; i <= retries; i++){
+    try {
+      await mongoose.connect(process.env.MONGO_URI,{
+        useNewUrlParser: true,
+        useUnifiedTopology: true,
+      });
+      console.log('🔗 Connected to MongoDB');
+      break;
+    } catch (err){
+      console.log('❌ MongoDB connection failed (attempt ${i}/${retries}). Retrying in ${delay / 1000}s...');
+      if ( i === retries){
+        console.error('💥 Could not connect to MongoDB. Exiting.');
+        process.exit(1);
+      }
+      await new Promise(res => setTimeout(res, delay));
+    }
+  }
+}
 
 
 //Routes
